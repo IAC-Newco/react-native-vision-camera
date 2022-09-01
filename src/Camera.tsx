@@ -125,6 +125,14 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
 
+  public async takeMultiFormatPhoto(): Promise<PhotoFile> {
+    try {
+      return await CameraModule.takeMultiFormatPhoto(this.handle, {});
+    } catch (e) {
+      throw tryParseNativeCameraError(e);
+    }
+  }
+
   /**
    * Take a snapshot of the current preview view.
    *

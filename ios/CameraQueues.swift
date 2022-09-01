@@ -37,4 +37,11 @@ public class CameraQueues: NSObject {
                                                      attributes: [],
                                                      autoreleaseFrequency: .inherit,
                                                      target: nil)
+  
+  /// The concurrent execution queue for output processing of video.
+  @objc public static let videoOutputQueue = DispatchQueue(label: "mrousavy/VisionCamera.video-output",
+                                                     qos: .userInteractive,
+                                                           attributes: [.concurrent],
+                                                     autoreleaseFrequency: .inherit,
+                                                     target: nil)
 }

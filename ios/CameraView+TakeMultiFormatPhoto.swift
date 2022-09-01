@@ -13,27 +13,27 @@ import AVFoundation
 extension CameraView {
   func takeMultiFormatPhoto(options: NSDictionary, promise: Promise) {
     guard #available(iOS 14.3, *) else { return }
-    jpegCapture(promise)
-    hvecCapture(promise)
-    uncompressedCapture(promise)
-    bayerRAWCapture(promise)
-    appleProRAWCapture(promise)
+    guard let photoOutput = self.photoOutput else {
+      if self.photo?.boolValue == true {
+        promise.reject(error: .session(.cameraNotReady))
+        return
+      } else {
+        promise.reject(error: .capture(.photoNotEnabled))
+        return
+      }
+    }
+    jpegCapture(promise, photoOutput)
+    hvecCapture(promise, photoOutput)
+    uncompressedCapture(promise, photoOutput)
+    bayerRAWCapture(promise, photoOutput)
+    appleProRAWCapture(promise, photoOutput)
   }
   
-  func jpegCapture(_ promise: Promise) {
+  func jpegCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
-      guard let photoOutput = self.photoOutput else {
-        if self.photo?.boolValue == true {
-          promise.reject(error: .session(.cameraNotReady))
-          return
-        } else {
-          promise.reject(error: .capture(.photoNotEnabled))
-          return
-        }
-      }
-      // JPEG
-      let jpegPhotoSettings = AVCapturePhotoSettings(format: nil)
+      let jpegFormat = [AVVideoCodecKey: AVVideoCodecType.jpeg]
+      let jpegPhotoSettings = AVCapturePhotoSettings(format: jpegFormat)
       jpegPhotoSettings.isHighResolutionPhotoEnabled = true
       jpegPhotoSettings.photoQualityPrioritization = .quality
       photoOutput.capturePhoto(
@@ -46,19 +46,9 @@ extension CameraView {
     }
   }
   
-  func hvecCapture(_ promise: Promise) {
+  func hvecCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
-      guard let photoOutput = self.photoOutput else {
-        if self.photo?.boolValue == true {
-          promise.reject(error: .session(.cameraNotReady))
-          return
-        } else {
-          promise.reject(error: .capture(.photoNotEnabled))
-          return
-        }
-      }
-      // HEIC/HEVC
       let hevcFormat = [AVVideoCodecKey: AVVideoCodecType.hevc]
       let hevcPhotoSettings = AVCapturePhotoSettings(format: hevcFormat)
       hevcPhotoSettings.isHighResolutionPhotoEnabled = true
@@ -73,19 +63,9 @@ extension CameraView {
     }
   }
   
-  func uncompressedCapture(_ promise: Promise) {
+  func uncompressedCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
-      guard let photoOutput = self.photoOutput else {
-        if self.photo?.boolValue == true {
-          promise.reject(error: .session(.cameraNotReady))
-          return
-        } else {
-          promise.reject(error: .capture(.photoNotEnabled))
-          return
-        }
-      }
-      // Uncompressed
       let uncompressedPixelFormatType = kCVPixelFormatType_32BGRA
       for availablePhotoPixelFormatType in photoOutput.availablePhotoPixelFormatTypes {
         print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
@@ -110,22 +90,13 @@ extension CameraView {
     }
   }
   
-  func bayerRAWCapture(_ promise: Promise) {
+  func bayerRAWCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
-      guard let photoOutput = self.photoOutput else {
-        if self.photo?.boolValue == true {
-          promise.reject(error: .session(.cameraNotReady))
-          return
-        } else {
-          promise.reject(error: .capture(.photoNotEnabled))
-          return
-        }
-      }
-      
-      // RAW (Bayer)
       if let bayerRAWPixelFormat = photoOutput.availableRawPhotoPixelFormatTypes.first(
             where: { AVCapturePhotoOutput.isBayerRAWPixelFormat($0)} ) {
+        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+              "bayerRAWPixelFormat: \(bayerRAWPixelFormat)")
         let bayerRAWPhotoSettings = AVCapturePhotoSettings(rawPixelFormatType: bayerRAWPixelFormat)
         bayerRAWPhotoSettings.isHighResolutionPhotoEnabled = true
         photoOutput.capturePhoto(
@@ -142,21 +113,13 @@ extension CameraView {
     }
   }
   
-  func appleProRAWCapture(_ promise: Promise) {
+  func appleProRAWCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
-      guard let photoOutput = self.photoOutput else {
-        if self.photo?.boolValue == true {
-          promise.reject(error: .session(.cameraNotReady))
-          return
-        } else {
-          promise.reject(error: .capture(.photoNotEnabled))
-          return
-        }
-      }
-      // Apple ProRAW
       if let appleProRAWPixelFormat = photoOutput.availableRawPhotoPixelFormatTypes.first(
             where: { AVCapturePhotoOutput.isAppleProRAWPixelFormat($0)} ) {
+        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+              "appleProRAWPixelFormat: \(appleProRAWPixelFormat)")
         let appleProRAWPhotoSettings = AVCapturePhotoSettings(rawPixelFormatType: appleProRAWPixelFormat)
         appleProRAWPhotoSettings.isHighResolutionPhotoEnabled = true
         photoOutput.capturePhoto(

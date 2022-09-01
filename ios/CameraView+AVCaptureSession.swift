@@ -119,6 +119,12 @@ extension CameraView {
         photoOutput!.mirror()
       }
     }
+    
+    if #available(iOS 14.3, *) {
+      photoOutput?.isAppleProRAWEnabled = photoOutput?.isAppleProRAWSupported ?? false
+      print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+            "isAppleProRAWSupported: \(photoOutput?.isAppleProRAWSupported) isAppleProRAWEnabled: \(photoOutput?.isAppleProRAWEnabled)")
+    }
 
     // Video Output + Frame Processor
     if let videoOutput = videoOutput {

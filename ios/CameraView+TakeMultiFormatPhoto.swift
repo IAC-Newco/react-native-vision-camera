@@ -10,9 +10,9 @@ import AVFoundation
 
 // MARK: - TakePhotoOptions
 
-@available(iOS 14.3, *)
 extension CameraView {
   func takeMultiFormatPhoto(options: NSDictionary, promise: Promise) {
+    guard #available(iOS 14.3, *) else { return }
     jpegCapture(promise)
     hvecCapture(promise)
     uncompressedCapture(promise)
@@ -21,6 +21,7 @@ extension CameraView {
   }
   
   func jpegCapture(_ promise: Promise) {
+    guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
       guard let photoOutput = self.photoOutput else {
         if self.photo?.boolValue == true {
@@ -46,6 +47,7 @@ extension CameraView {
   }
   
   func hvecCapture(_ promise: Promise) {
+    guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
       guard let photoOutput = self.photoOutput else {
         if self.photo?.boolValue == true {
@@ -72,6 +74,7 @@ extension CameraView {
   }
   
   func uncompressedCapture(_ promise: Promise) {
+    guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
       guard let photoOutput = self.photoOutput else {
         if self.photo?.boolValue == true {
@@ -108,6 +111,7 @@ extension CameraView {
   }
   
   func bayerRAWCapture(_ promise: Promise) {
+    guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
       guard let photoOutput = self.photoOutput else {
         if self.photo?.boolValue == true {
@@ -139,6 +143,7 @@ extension CameraView {
   }
   
   func appleProRAWCapture(_ promise: Promise) {
+    guard #available(iOS 14.3, *) else { return }
     videoOutputQueue.async {
       guard let photoOutput = self.photoOutput else {
         if self.photo?.boolValue == true {

@@ -73,9 +73,9 @@ final class CameraViewManager: RCTViewManager {
     component.takePhoto(options: options, promise: Promise(resolver: resolve, rejecter: reject))
   }
   
-  @available(iOS 14.3, *)
   @objc
   final func takeMultiFormatPhoto(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    guard #available(iOS 14.3, *) else { return }
     let component = getCameraView(withTag: node)
     component.takeMultiFormatPhoto(options: options, promise: Promise(resolver: resolve, rejecter: reject))
   }

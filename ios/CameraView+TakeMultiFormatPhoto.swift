@@ -31,6 +31,8 @@ extension CameraView {
   
   func jpegCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
+    print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+          "jpegCapture")
     videoOutputQueue.async {
       let jpegFormat = [AVVideoCodecKey: AVVideoCodecType.jpeg]
       let jpegPhotoSettings = AVCapturePhotoSettings(format: jpegFormat)
@@ -43,11 +45,15 @@ extension CameraView {
           format: .jpeg
         )
       )
+      print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+            "jpegCapture done")
     }
   }
   
   func hvecCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
+    print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+          "hvecCapture")
     videoOutputQueue.async {
       let hevcFormat = [AVVideoCodecKey: AVVideoCodecType.hevc]
       let hevcPhotoSettings = AVCapturePhotoSettings(format: hevcFormat)
@@ -60,17 +66,17 @@ extension CameraView {
           format: .hvec
         )
       )
+      print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+            "hvecCapture done")
     }
   }
   
   func uncompressedCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
+    print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+          "uncompressedCapture")
     videoOutputQueue.async {
       let uncompressedPixelFormatType = kCVPixelFormatType_32BGRA
-      for availablePhotoPixelFormatType in photoOutput.availablePhotoPixelFormatTypes {
-        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
-              "availablePhotoPixelFormatType: \(availablePhotoPixelFormatType)")
-      }
       if photoOutput.availablePhotoPixelFormatTypes.contains(uncompressedPixelFormatType) {
         let uncompressedFormat: [String: Any] = [(kCVPixelBufferPixelFormatTypeKey as String): kCVPixelFormatType_32BGRA]
         let uncompressedPhotoSettings = AVCapturePhotoSettings(format: uncompressedFormat)
@@ -83,6 +89,8 @@ extension CameraView {
             format: .uncompressedTIFF
           )
         )
+        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+              "uncompressedCapture done")
       } else {
         print("🔴 \((#file as NSString).lastPathComponent):\(#line) " +
               "kCVPixelFormatType_32BGRA format not available")
@@ -92,11 +100,11 @@ extension CameraView {
   
   func bayerRAWCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
+    print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+          "bayerRAWCapture")
     videoOutputQueue.async {
       if let bayerRAWPixelFormat = photoOutput.availableRawPhotoPixelFormatTypes.first(
             where: { AVCapturePhotoOutput.isBayerRAWPixelFormat($0)} ) {
-        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
-              "bayerRAWPixelFormat: \(bayerRAWPixelFormat)")
         let bayerRAWPhotoSettings = AVCapturePhotoSettings(rawPixelFormatType: bayerRAWPixelFormat)
         bayerRAWPhotoSettings.isHighResolutionPhotoEnabled = true
         photoOutput.capturePhoto(
@@ -106,6 +114,8 @@ extension CameraView {
             format: .bayerRAW
           )
         )
+        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+              "bayerRAWCapture done")
       } else {
         print("🔴 \((#file as NSString).lastPathComponent):\(#line) " +
               "Bayer RAW pixel format not available")
@@ -115,11 +125,11 @@ extension CameraView {
   
   func appleProRAWCapture(_ promise: Promise, _ photoOutput: AVCapturePhotoOutput) {
     guard #available(iOS 14.3, *) else { return }
+    print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+          "appleProRAWCapture")
     videoOutputQueue.async {
       if let appleProRAWPixelFormat = photoOutput.availableRawPhotoPixelFormatTypes.first(
             where: { AVCapturePhotoOutput.isAppleProRAWPixelFormat($0)} ) {
-        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
-              "appleProRAWPixelFormat: \(appleProRAWPixelFormat)")
         let appleProRAWPhotoSettings = AVCapturePhotoSettings(rawPixelFormatType: appleProRAWPixelFormat)
         appleProRAWPhotoSettings.isHighResolutionPhotoEnabled = true
         photoOutput.capturePhoto(
@@ -129,6 +139,8 @@ extension CameraView {
             format: .appleProRAW
           )
         )
+        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
+              "appleProRAWCapture done")
       } else {
         print("🔴 \((#file as NSString).lastPathComponent):\(#line) " +
               "Apple ProRAW pixel format not available")

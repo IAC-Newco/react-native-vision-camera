@@ -7,8 +7,10 @@
 //
 
 import AVFoundation
+import Foundation
 
 private var delegatesReferences: [NSObject] = []
+private var processedPhotos: [[String: Any]] = []
 
 // MARK: - MultiFormatPhotoCaptureDelegate
 
@@ -23,7 +25,6 @@ enum PhotoOutputFormat: String {
 class MultiFormatPhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   private let promise: Promise
   private let format: PhotoOutputFormat
-  private var processedPhotos: [[String: Any]] = []
 
   required init(promise: Promise, format: PhotoOutputFormat) {
     self.promise = promise
@@ -40,12 +41,14 @@ class MultiFormatPhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     }
 
     let error = ErrorPointer(nilLiteral: ())
-    guard let tempFilePath = RCTTempFilePath("jpeg", error)
+    guard let tempFilePath: String = RCTTempFilePath(format.rawValue, error)
     else {
       promise.reject(error: .capture(.createTempFileError), cause: error?.pointee)
       return
     }
     let url = URL(string: "file://\(tempFilePath)")!
+//    let filename = tempFilePath.replacingOccurrences(of: format.rawValue, with: "").suffix(5) + format.rawValue
+    let filename = "card.\(format.rawValue)"
 
     guard let data = photo.fileDataRepresentation() else {
       promise.reject(error: .capture(.fileError))
@@ -59,7 +62,9 @@ class MultiFormatPhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       let height = exif?["PixelYDimension"]
 
       processedPhotos.append([
+        "format": self.format.rawValue,
         "path": tempFilePath,
+        "filename": filename,
         "width": width as Any,
         "height": height as Any,
         "isRawPhoto": photo.isRawPhoto,
@@ -69,9 +74,9 @@ class MultiFormatPhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
             "delegatesReferences.count: \(delegatesReferences.count) processedPhotos: \(processedPhotos.count)")
       delegatesReferences.removeAll(where: { $0 == self })
-      if delegatesReferences.count == 0 {
-        print("🟡 \((#file as NSString).lastPathComponent):\(#line) " +
-              "delegatesReferences is zero")
+      if processedPhotos.count == 5 {
+        promise.resolve(processedPhotos)
+        processedPhotos = []
       }
     } catch {
       promise.reject(error: .capture(.fileError), cause: error as NSError)
